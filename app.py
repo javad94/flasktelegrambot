@@ -55,6 +55,7 @@ def hello_world():
 def pass_update():
     up = Update.de_json(request.get_json(force=True),bot)
     uq.put(up)
+    return "ok"
 
 if __name__ == '__main__':
     bot.setWebhook("https://{}.herokuapp.com/{}".format(NAME, token))
