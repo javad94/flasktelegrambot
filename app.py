@@ -35,6 +35,7 @@ def setup(token):
     dispatcher.add_handler(echo_handler)
 
     # Start the thread
+    bot.setWebhook("https://{}.herokuapp.com/{}".format(NAME, token))
     thread = Thread(target=dispatcher.start, name='dispatcher')
     thread.start()
 
@@ -57,5 +58,4 @@ def pass_update():
     return "ok"
 
 if __name__ == '__main__':
-    bot.setWebhook("https://{}.herokuapp.com/{}".format(NAME, token))
     app.run(host='0.0.0.0',port=PORT,debug=True)
