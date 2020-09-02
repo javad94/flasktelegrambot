@@ -18,24 +18,28 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-token = "Your token from @Botfather"
+TOKEN = "Your token from @Botfather"
 NAME = "The name of your app on Heroku"
 PORT = int(os.environ.get('PORT', '8443'))
 
-bot = Bot(token)
+bot = Bot(TOKEN)
 
-def setup(token):
+def echo(update, context):
+    text = update.message.text
+    update.message.reply_text(text)
+
+def setup(TOKEN):
     # update queue and dispatcher instances
     update_queue = Queue()
 
-    dispatcher = Dispatcher(bot, update_queue)
+    dispatcher = Dispatcher(bot, update_queue, use_context=True)
 
     ##### Register handlers here #####
     echo_handler = MessageHandler(Filters.text, echo)
     dispatcher.add_handler(echo_handler)
 
     # Start the thread
-    bot.setWebhook("https://{}.herokuapp.com/{}".format(NAME, token))
+    bot.setWebhook("https://{}.herokuapp.com/{}".format(NAME, TOKEN))
     thread = Thread(target=dispatcher.start, name='dispatcher')
     thread.start()
 
@@ -45,16 +49,16 @@ def setup(token):
     # return (update_queue, dispatcher)
 
 app = Flask(__name__)
-uq = setup(token)
+update_queue = setup(token)
 
 @app.route('/')
 def hello_world():
     return 'Hello World!'
 
-@app.route('/'+token, methods=['GET','POST'])
+@app.route('/' + TOKEN, methods=['GET','POST'])
 def pass_update():
-    up = Update.de_json(request.get_json(force=True),bot)
-    uq.put(up)
+    new_update = Update.de_json(request.get_json(force=True),bot)
+    update_queue.put(new_update)
     return "ok"
 
 if __name__ == '__main__':
